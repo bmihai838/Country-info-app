@@ -19,33 +19,40 @@ export const useField = (type) => {
     }
 }
 
-export const useCountry =  (name, region) => {
+export const useCountry =  (name, region, cca2) => {
     const [countries, setCountries] = useState([])
+    const [data, setData] = useState(null)
 
    useEffect(() => {
     const fetchCountries = async () => {
+
         try {
             const response = await axios.get('https://studies.cs.helsinki.fi/restcountries/api/all')
             let filteredCountries = response.data
 
-            if (name) {
-                 filteredCountries = response.data.filter(c => 
-                    c.name.common.toLowerCase().includes(name.toLowerCase())
-                )
+            if (cca2) {
+                filteredCountries = response.data.filter(c => c.cca2.toLowerCase() === cca2.toLowerCase())
+            } else {
+
+                if (name) {
+                    filteredCountries = response.data.filter(c => 
+                       c.name.common.toLowerCase().includes(name.toLowerCase())
+                   )
+                }
+
+                if (region) {
+                   filteredCountries = filteredCountries.filter(c => c.region === region)
+                }
             }
-            if (region) {
-                filteredCountries = filteredCountries.filter(c => c.region === region)
-            }
-            
+
             setCountries(filteredCountries)
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error fetching countries:', error)
             setCountries([])
         }
     }
     fetchCountries()
-   }, [name, region])
+   }, [name, region, cca2])
 
    return countries
 }
